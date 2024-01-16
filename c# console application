@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+class Program
+{
+    // Define the Call class with properties.
+    class Call
+    {
+        public int CallerIdentity { get; set; }
+        public string CallerName { get; set; }
+        public int Duration { get; set; }
+    }
+
+    // Declare global variables for timer and callQueue.
+    static Timer timer;
+    static Queue<Call> callQueue;
+
+    static void Main()
+    {
+        // Create a Queue of Call objects.
+        callQueue = new Queue<Call>();
+
+        // Initialize the callQueue with sample data.
+        callQueue.Enqueue(new Call { CallerIdentity = 1, CallerName = "Obaro Adewale", Duration = 12 });
+        callQueue.Enqueue(new Call { CallerIdentity = 2, CallerName = "Tinashe Phindile", Duration = 18 });
+        callQueue.Enqueue(new Call { CallerIdentity = 3, CallerName = "Ngobeni Davinci", Duration = 22 });
+
+        // Display the initial contents of the callQueue.
+        DisplayCallQueue(callQueue);
+
+        // Create a Timer to simulate call handling.
+        timer = new Timer(HandleCall, null, 0, Timeout.Infinite);
+
+        // Keep the console application running.
+        Console.ReadLine();
+    }
+
+    // callback method to handle each call.
+    static void HandleCall(object state)
+    {
+        // Dequeue the call from the front of the queue.
+        if (callQueue.Count > 0)
+        {
+            Call currentCall = callQueue.Dequeue();
+            Console.WriteLine($"\nHandling Call: {currentCall.CallerName}, Duration: {currentCall.Duration} seconds");
+            // the duration of the call.
+            Thread.Sleep(currentCall.Duration * 1000);
+            Console.WriteLine($"Call Ended: {currentCall.CallerName}");
+        }
+
+        //updated contents of the callQueue.
+        DisplayCallQueue(callQueue);
+
+        // Enqueue the next call 
+        if (callQueue.Count > 0)
+        {
+            // Restart the timer next call.
+            timer.Change(0, Timeout.Infinite);
+        }
+    }
+
+    // display the contents of the callQueue.
+    static void DisplayCallQueue(Queue<Call> queue)
+    {
+        Console.WriteLine("\nCurrent Queue Status:");
+        foreach (var call in queue)
+        {
+            // Skip the currently handled call.
+            if (call == queue.Peek() && callQueue.Count > 0)
+                continue;
+
+            Console.WriteLine($"Caller ID: {call.CallerIdentity}, Caller Name: {call.CallerName}, Duration: {call.Duration} seconds");
+        }
+    }
+}
